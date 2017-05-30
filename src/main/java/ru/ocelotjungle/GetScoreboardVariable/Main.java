@@ -37,6 +37,12 @@ public class Main extends JavaPlugin {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		try {
+			server.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void onDisable() {
@@ -49,6 +55,3 @@ public class Main extends JavaPlugin {
 		}
 	}
 }
-
-
-

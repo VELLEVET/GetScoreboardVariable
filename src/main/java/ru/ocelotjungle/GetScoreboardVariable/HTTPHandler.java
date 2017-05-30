@@ -28,9 +28,13 @@ public class HTTPHandler extends AbstractHandler {
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				operationStatus = 1;
 			} else {
-				Integer score = var.getScore(pname).getScore();
-				resp.getWriter().write(score.toString());
-				operationStatus = 2;
+				try {
+					Integer score = var.getScore(pname).getScore();
+					resp.getWriter().write(score.toString());
+					operationStatus = 2;
+				} catch (IllegalArgumentException iae) {
+					resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				}
 			}
 		}
 		resp.getWriter().flush();
