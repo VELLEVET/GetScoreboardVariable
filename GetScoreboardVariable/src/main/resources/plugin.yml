@@ -1,0 +1,4 @@
+name: GetScoreboardVariable
+main: ru.ocelotjungle.GetScoreboardVariable.Main
+version: 1.0
+description: Getting any scoreboard value by playername and varname
