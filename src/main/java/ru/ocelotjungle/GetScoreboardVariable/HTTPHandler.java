@@ -39,15 +39,14 @@ public class HTTPHandler extends AbstractHandler {
 	}
 	
 	private void logInfo(byte opStatus, String vname, String pname, HttpServletRequest req) {
-		if (Main.loggingMode > 0) {
+		if (Main.loggingMode > 0 && opStatus > 0) {
 			if (opStatus == 1) {
 				log("] (NO VAR '" + vname + "')");
 			} else if (opStatus == 2) {
 				log("] (" + vname + "; " + pname + ")");
-				
-				if (Main.loggingMode == 2) {
-					log("-ADV] " + req.getRemoteAddr() + ":" + req.getRemotePort());
-				}
+			}
+			if (Main.loggingMode == 2) {
+				log("-ADV] " + req.getRemoteAddr() + ":" + req.getRemotePort());
 			}
 		}
 	}

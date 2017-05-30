@@ -1,4 +1,7 @@
 logging:
   enable: true
-  advanced: false
+  advanced: true
 port: 8080
+
+
+
