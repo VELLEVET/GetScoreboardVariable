@@ -1,0 +1,1 @@
+This plugin can be used for getting Scoreboard value (one per request) by vname (variable) and pname (player) parameters.

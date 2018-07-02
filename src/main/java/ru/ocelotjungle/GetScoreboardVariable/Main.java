@@ -11,7 +11,7 @@ public class Main extends JavaPlugin {
 	public static Main plugin;
 	public static org.bukkit.Server bServer;
 	public static Scoreboard scboard;
-	public static byte loggingMode;
+	public static boolean loggingMode;
 	private Server server;
 	private int port;
 	
@@ -26,8 +26,7 @@ public class Main extends JavaPlugin {
 		
 		saveDefaultConfig();
 		
-		loggingMode = (byte) (getConfig().getBoolean("logging.enable") == true ? 
-							(getConfig().getBoolean("logging.advanced") == true? 2: 1) : 0);
+		loggingMode = getConfig().getBoolean("logging.enable");
 		port = getConfig().getInt("port");
 		
 		server = new Server(port);
@@ -43,6 +42,8 @@ public class Main extends JavaPlugin {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		plugin.getCommand("gsv").setExecutor(new CommandManager());
+		
 	}
 	
 	public void onDisable() {

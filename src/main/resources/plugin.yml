@@ -2,3 +2,8 @@ name: GetScoreboardVariable
 main: ru.ocelotjungle.GetScoreboardVariable.Main
 version: 1.0
 description: Getting any scoreboard value by p(layer)name and v(ariable)name
+commands:
+  gsv:
+    description: main command
+    usage: /gsv <count>
+    permission: op
