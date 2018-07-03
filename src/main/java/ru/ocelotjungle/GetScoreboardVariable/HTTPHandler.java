@@ -63,7 +63,7 @@ public class HTTPHandler extends AbstractHandler {
 					players.add(player);
 				}
 				final String NEWLINE = "\r\n";
-				StringBuffer result = new StringBuffer("[" + NEWLINE);
+				StringBuffer result = new StringBuffer("{" + NEWLINE);
 				for(int i = 0; i < size; i++) {
 					String maxPlayer = "";
 					int maxScore = Integer.MIN_VALUE;
@@ -74,13 +74,13 @@ public class HTTPHandler extends AbstractHandler {
 							maxScore = score;
 						}
 					}
-					if(maxPlayer.equalsIgnoreCase("")) {
+					if(maxPlayer.length() == 0) {
 						break;
 					}
 					result.append(String.format("\"%s\": %d,%s", maxPlayer, maxScore, NEWLINE));
 					players.remove(maxPlayer);
 				}
-				result.append("]");
+				result.append("}");
 				resp.getWriter().write(result.toString());
 				log(System.currentTimeMillis());
 				return;
