@@ -19,12 +19,13 @@ public class HTTPHandler extends AbstractHandler {
 			throws IOException, ServletException {
 		String act = req.getParameter("act");
 		if(act != null) {
+			String vname = req.getParameter("vname");
 			switch(act) {
 			case "value":
-				returnValue(req.getParameter("vname"), req.getParameter("pname"), req, resp);
+				returnValue(vname, req.getParameter("pname"), req, resp);
 				break;
 			case "top":
-				returnTop(req.getParameter("vname"), req.getParameter("size"), req, resp);
+				returnTop(vname, req.getParameter("size"), req, resp);
 				break;
 			}
 			resp.getWriter().flush();
@@ -32,17 +33,15 @@ public class HTTPHandler extends AbstractHandler {
 	}
 	
 	private void returnValue(String vname, String pname, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		log(System.currentTimeMillis());
-		if(vname != null && pname != null) {
+		if(vname != null && pname != null && !Main.valueBlacklist.contains(vname)) {
 			Objective var = Main.scboard.getObjective(vname);
 			if(var != null) {
 				try {
 					Integer score = var.getScore(pname).getScore();
 					resp.getWriter().write(score.toString());
 					if(Main.loggingMode) {
-						log("(" + vname + "; " + pname + ") [" + req.getRemoteAddr() + ":" + req.getRemotePort() + "]");
+						log("(VALUE; " + vname + "; " + pname + ") [" + req.getRemoteAddr() + ":" + req.getRemotePort() + "]");
 					}
-					log(System.currentTimeMillis());
 					return;
 				} catch(IllegalArgumentException iae) { }
 			}
@@ -51,8 +50,7 @@ public class HTTPHandler extends AbstractHandler {
 	}
 	
 	private void returnTop(String vname, String ssize, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		log(System.currentTimeMillis());
-		if(vname != null && ssize != null) {
+		if(vname != null && ssize != null && !Main.topBlacklist.contains(vname)) {
 			Objective var = Main.scboard.getObjective(vname);
 			
 			if(var != null) {
@@ -77,12 +75,14 @@ public class HTTPHandler extends AbstractHandler {
 					if(maxPlayer.length() == 0) {
 						break;
 					}
-					result.append(String.format("\"%s\": %d,%s", maxPlayer, maxScore, NEWLINE));
+					result.append(String.format("\"%s\": %d%s%s", maxPlayer, maxScore, (i == size - 1 ? "," : ""), NEWLINE));
 					players.remove(maxPlayer);
 				}
 				result.append("}");
 				resp.getWriter().write(result.toString());
-				log(System.currentTimeMillis());
+				if(Main.loggingMode) {
+					log("(TOP; " + vname + "; " + size + ") [" + req.getRemoteAddr() + ":" + req.getRemotePort() + "]");
+				}
 				return;
 			}
 		}

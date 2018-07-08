@@ -1,5 +1,6 @@
 package ru.ocelotjungle.GetScoreboardVariable;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,6 +13,8 @@ public class Main extends JavaPlugin {
 	public static org.bukkit.Server bServer;
 	public static Scoreboard scboard;
 	public static boolean loggingMode;
+	public static List<String> valueBlacklist;
+	public static List<String> topBlacklist;
 	private Server server;
 	private int port;
 	
@@ -28,6 +31,8 @@ public class Main extends JavaPlugin {
 		
 		loggingMode = getConfig().getBoolean("logging.enable");
 		port = getConfig().getInt("port");
+		valueBlacklist = getConfig().getStringList("blacklist.value");
+		topBlacklist = getConfig().getStringList("blacklist.top");
 		
 		server = new Server(port);
 		server.setHandler(new HTTPHandler());
@@ -36,14 +41,7 @@ public class Main extends JavaPlugin {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		try {
-			server.start();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		plugin.getCommand("gsv").setExecutor(new CommandManager());
-		
+		//plugin.getCommand("gsv").setExecutor(new CommandManager());
 	}
 	
 	public void onDisable() {
