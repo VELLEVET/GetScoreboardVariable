@@ -13,6 +13,8 @@ public class Main extends JavaPlugin {
 	public static org.bukkit.Server bServer;
 	public static Scoreboard scboard;
 	public static boolean loggingMode;
+	public static String valuePass;
+	public static String topPass;
 	public static List<String> valueBlacklist;
 	public static List<String> topBlacklist;
 	private Server server;
@@ -31,6 +33,8 @@ public class Main extends JavaPlugin {
 		
 		loggingMode = getConfig().getBoolean("logging.enable");
 		port = getConfig().getInt("port");
+		valuePass = getConfig().getString("passphrases.value");
+		topPass = getConfig().getString("passphrases.top");
 		valueBlacklist = getConfig().getStringList("blacklist.value");
 		topBlacklist = getConfig().getStringList("blacklist.top");
 		

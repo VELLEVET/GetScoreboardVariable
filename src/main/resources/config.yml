@@ -1,6 +1,9 @@
 logging:
   enable: true
 port: 8080
+passphases:
+  value: 'vexpass'
+  top: 'texpass'
 blacklist:
   value:
     - 'example'
