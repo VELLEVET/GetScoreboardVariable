@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class HTTPHandler extends AbstractHandler {
+	private Gson gson;
 	
 	@Override
 	public void handle(String arg0, Request baseRequest, HttpServletRequest req, HttpServletResponse resp)
@@ -25,19 +26,25 @@ public class HTTPHandler extends AbstractHandler {
 		if(act != null) {
 			String vname = req.getParameter("vname");
 			String pass = req.getParameter("pass");
+			if(Boolean.parseBoolean(req.getParameter("string"))) {
+				gson = new GsonBuilder().create();
+			} else {
+				gson = new GsonBuilder().setPrettyPrinting().create();
+			}
 			switch(act) {
 			case "value":
-				returnValue(vname, req.getParameter("pname"), pass, req, resp);
+				returnValue(vname, pass, req, resp);
 				break;
 			case "top":
-				returnTop(vname, req.getParameter("size"), req.getParameter("min"), pass, req, resp);
+				returnTop(vname, pass, req, resp);
 				break;
 			}
 			resp.getWriter().flush();
 		}
 	}
 	
-	private void returnValue(String vname, String pname, String pass, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	private void returnValue(String vname, String pass, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		String pname = req.getParameter("pname");
 		if(vname != null && pname != null) {
 			if(!Main.valueBlacklist.contains(vname) || Main.valueBlacklist.contains(vname) && pass != null && pass.equals(Main.valuePass)) {
 				Objective var = Main.scboard.getObjective(vname);
@@ -45,7 +52,6 @@ public class HTTPHandler extends AbstractHandler {
 					try {
 						Integer score = var.getScore(pname).getScore();
 						Value value = new Value(vname, pname, score);
-						Gson gson = new GsonBuilder().setPrettyPrinting().create();
 						resp.getWriter().write(gson.toJson(value));
 						if(Main.loggingMode) {
 							log("(VALUE; " + vname + "; " + pname + ") [" + req.getRemoteAddr() + ":" + req.getRemotePort() + "]");
@@ -70,43 +76,51 @@ public class HTTPHandler extends AbstractHandler {
 		}
 	}
 	
-	private void returnTop(String vname, String ssize, String smin, String pass, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	private void returnTop(String vname, String pass, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		String ssize = req.getParameter("size");
+		String smin = req.getParameter("min");
 		if(vname != null && ssize != null) {
 			if(!Main.topBlacklist.contains(vname) || Main.topBlacklist.contains(vname) && pass != null && pass.equals(Main.topPass)) {
 				Objective var = Main.scboard.getObjective(vname);
 				
 				if(var != null) {
-					int size = Integer.parseInt(ssize);
-					Set<String> playersSet = Main.scboard.getEntries();
-					HashSet<String> players = new HashSet<>(playersSet.size());
-					for(String player : playersSet) {
-						players.add(player);
-					}
-					LinkedList<TopValue> values = new LinkedList<>();
-					int min = smin == null ? Integer.MIN_VALUE : Integer.parseInt(smin);
-					for(int i = 0; i < size; i++) {
-						String maxPlayer = "";
-						int maxScore = min;
-						for(String player : players) {
-							int score = var.getScore(player).getScore();
-							if(score > maxScore) {
-								maxPlayer = player;
-								maxScore = score;
+					try {
+						int size = Integer.parseInt(ssize);
+						Set<String> playersSet = Main.scboard.getEntries();
+						HashSet<String> players = new HashSet<>(playersSet.size());
+						for(String player : playersSet) {
+							players.add(player);
+						}
+						LinkedList<TopValue> values = new LinkedList<>();
+						int min = Integer.MIN_VALUE;
+						if(smin != null) {
+							try {
+								min = Integer.parseInt(smin);
+							} catch(NumberFormatException nfe) { }
+						}
+						for(int i = 0; i < size; i++) {
+							String maxPlayer = null;
+							int maxScore = min;
+							for(String player : players) {
+								int score = var.getScore(player).getScore();
+								if(score > maxScore) {
+									maxPlayer = player;
+									maxScore = score;
+								}
 							}
+							if(maxPlayer == null) {
+								break;
+							}
+							values.add(new TopValue(maxPlayer, maxScore));
+							players.remove(maxPlayer);
 						}
-						if(maxPlayer.length() == 0) {
-							break;
+						Top top = new Top(vname, size, min, values);
+						resp.getWriter().write(gson.toJson(top));
+						if(Main.loggingMode) {
+							log("(TOP; " + vname + "; " + size + ") [" + req.getRemoteAddr() + ":" + req.getRemotePort() + "]");
 						}
-						values.add(new TopValue(maxPlayer, maxScore));
-						players.remove(maxPlayer);
-					}
-					Top top = new Top(vname, size, min, values);
-					Gson gson = new GsonBuilder().setPrettyPrinting().create();
-					resp.getWriter().write(gson.toJson(top));
-					if(Main.loggingMode) {
-						log("(TOP; " + vname + "; " + size + ") [" + req.getRemoteAddr() + ":" + req.getRemotePort() + "]");
-					}
-					return;
+						return;
+					} catch(NumberFormatException nfe) { }
 				}
 			}
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
